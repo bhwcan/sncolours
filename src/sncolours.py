@@ -16,7 +16,7 @@ class SaveFile:
     rvalue = True
     
     # JSON file
-    f = open(filename)
+    f = open(filename, 'r', encoding="utf-8", errors='ignore')
     rd = f.read()
     #print(rd[-1], rd[-10:])
     if rd[-1] == '\x00':
@@ -40,7 +40,7 @@ class SaveFile:
     return rvalue
 
   def writesave(self):
-    f = open(self.filename, "w")
+    f = open(self.filename, "w", encoding="utf-8")
     json.dump(self.data, f, separators=(',', ':'))
     f.write('\00')
     f.close()
@@ -105,12 +105,26 @@ class MainWindow(wx.Frame):
     self.Bind(wx.EVT_MENU, self.OnAbout, menuAbout)
     self.Bind(wx.EVT_MENU, self.OnSave, menuSave)
     self.Bind(wx.EVT_MENU, self.OnSort, menuSort)
+    self.Bind(wx.EVT_MENU, self.OnDelete, menuDelete)
     self.Bind(wx.EVT_MENU, self.OnRenumber, menuRenumber)
+    self.Bind(wx.EVT_MENU, self.OnAdd, menuAdd)
 
     self.statusbar.SetStatusText("0", 0)
     self.statusbar.SetStatusText("None", 1)
 
     self.Show()
+
+  def OnAdd(self, e):
+    row = self.grid.GetGridCursorRow()
+    print(row)
+    self.colours.append(self.colours[row])
+    self.gridcolours()
+
+  def OnDelete(self, e):
+    row = self.grid.GetGridCursorRow()
+    print("delete:", row)
+    del self.colours[row]
+    self.gridcolours()
 
   def OnRenumber(self, e):
     i = 100
@@ -152,12 +166,13 @@ class MainWindow(wx.Frame):
         tints.append(t)
         
       customColors[name] = {
-        'colorType': -10,
-        'gameDataXmlNone': None,
         'id': c['id'],
+        'gameDataXmlNode': None,
         'overrideMaterialName': 'skin_00',
         'tintsColors': tints,
-        'uiName' : c['name']
+        'uiName' : c['name'],
+        'isSpecialSkin': True,
+        'colorType': -10
         }
 
     #pprint.pprint(customColors)
@@ -224,7 +239,7 @@ class MainWindow(wx.Frame):
         #self.grid.SetCellBackgroundColour(row, c+1, wx.RED)
         #print(wx.RED)
       for t in range(3):
-        self.grid.SetCellValue(row, t+4, self.colours[row]['tints'][t].GetAsString())
+        self.grid.SetCellValue(row, t+4, self.colours[row]['tints'][t].GetAsString(wx.C2S_CSS_SYNTAX))
         
     self.statusbar.SetStatusText(str(numcolours), 0)
     self.Layout()
@@ -236,8 +251,8 @@ class MainWindow(wx.Frame):
       colour = e.GetString()
       print(row, col, colour)
       if self.colours[row]['tints'][col-4].Set(colour):
-        print(self.colours[row]['tints'][col-4].GetAsString())
-        self.grid.SetCellBackgroundColour(row, col-3, self.colours[row]['tints'][col-4])
+        print(self.colours[row]['tints'][col-4].GetAsString(wx.C2S_CSS_SYNTAX))
+        #self.grid.SetCellBackgroundColour(row, col-3, self.colours[row]['tints'][col-4])
         #self.grid.SetCellValue(row, col, self.colours[row]['tints'][col-4].GetAsString())
       else:
         e.Veto()
@@ -255,19 +270,24 @@ class MainWindow(wx.Frame):
         e.Veto()
       else:
         self.colours[row]['id'] = id
+    e.Skip()
 
   def OnChanged(self, e):
     row = e.GetRow()
     col = e.GetCol()
+    #print(row, col, e.GetString)
     if col > 3:
-      self.grid.SetCellValue(row, col, self.colours[row]['tints'][col-4].GetAsString())
+      self.grid.SetCellValue(row, col, self.colours[row]['tints'][col-4].GetAsString(wx.C2S_CSS_SYNTAX))
+      self.grid.SetCellBackgroundColour(row, col-3, self.colours[row]['tints'][col-4])
+      self.grid.Refresh()
     else:
       self.grid.SetCellValue(row, 0, str(self.colours[row]['id']))
+    #self.gridcolours()
       
   def OnOpen(self,e):
     """ Open a file"""
     filename = None
-    dlg = wx.FileDialog(self, "Choose a file", self.dirname, "", "*.dat;*.cfg", wx.FD_OPEN)
+    dlg = wx.FileDialog(self, "Open Save file", self.dirname, "", "CompleteSave*", wx.FD_OPEN)
     if dlg.ShowModal() == wx.ID_OK:
       self.filename = dlg.GetFilename()
       self.dirname = dlg.GetDirectory()
