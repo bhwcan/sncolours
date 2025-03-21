@@ -95,6 +95,7 @@ class MainWindow(wx.Frame):
     
     self.grid.Bind(wx.grid.EVT_GRID_CELL_CHANGING, self.OnChanging)
     self.grid.Bind(wx.grid.EVT_GRID_CELL_CHANGED, self.OnChanged)
+    self.grid.Bind(wx.grid.EVT_GRID_CELL_LEFT_CLICK, self.OnLeftClick)
     grid_sizer = wx.BoxSizer(wx.VERTICAL)
     grid_sizer.Add(self.grid, 0, wx.ALL|wx.EXPAND, 5)
     self.SetSizer(grid_sizer)
@@ -114,6 +115,22 @@ class MainWindow(wx.Frame):
 
     self.Show()
 
+  def OnLeftClick(self, e):
+    col = e.GetCol()
+    if col < 1 or col > 3:
+      e.Skip()
+    else:
+      row = e.GetRow()
+      data = wx.ColourData()
+      data.SetColour(self.colours[row]['tints'][col-1])
+      dlg = wx.ColourDialog(self, data)
+      if dlg.ShowModal() == wx.ID_OK:
+        colour = dlg.GetColourData().GetColour()
+        self.grid.SetCellValue(row, col+3, colour.GetAsString(wx.C2S_CSS_SYNTAX))
+        self.grid.SetCellBackgroundColour(row, col, colour)
+        self.grid.Refresh()
+        self.colours[row]['tints'][col-1] = colour
+    
   def OnAdd(self, e):
     row = self.grid.GetGridCursorRow()
     print(row)
