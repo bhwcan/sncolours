@@ -36,5 +36,8 @@ Renumbers the colours starting at 100 to look more like Snowrunner created ones.
 ### CSS/HTML
 Toggles the text colour columns between CSS "rgb(15, 101, 192)" and HTML "#OF65C0"
 
+## Example Colours
+![Screenshot 2025-03-21 233412](https://github.com/user-attachments/assets/ce28ca77-b969-45fb-a2f9-a7c562c1f11e)
+
 
 
