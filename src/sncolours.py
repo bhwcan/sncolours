@@ -49,6 +49,7 @@ class SaveFile:
 class MainWindow(wx.Frame):
   def __init__(self, title):
 
+    self.fontsize = 12
     self.dirname = "."
     self.filename = ""
     self.source = SaveFile()
@@ -56,7 +57,7 @@ class MainWindow(wx.Frame):
     self.grid = None
     self.textmethod = wx.C2S_CSS_SYNTAX
 
-    wx.Frame.__init__(self, None, title=title, size=(920,400))
+    wx.Frame.__init__(self, None, title=title, size=(920,600))
 
     self.statusbar = self.CreateStatusBar() # A Statusbar in the bottom of the window
     self.statusbar.SetFieldsCount(2)
@@ -76,15 +77,21 @@ class MainWindow(wx.Frame):
     menuSort = rowmenu.Append(1003, "Sort", "Sort Rows by ID")
     menuRenumber = rowmenu.Append(1004, "Renumber", "Renumber ID starting with 100")
     menuCSSHTML = rowmenu.Append(1005, "CSS/HTML", "Colour text encoding method")
-    
+
+    fontmenu = wx.Menu()
+    menuSizePlus = fontmenu.Append(1006, "Size +", "Increase font size")
+    menuSizeMinus = fontmenu.Append(1007, "Size -", "Decrease font size")
+   
     # Creating the menubar.
     menuBar = wx.MenuBar()
     menuBar.Append(filemenu,"&File") # Adding the "filemenu" to the MenuBar
     menuBar.Append(rowmenu, "Row")
+    menuBar.Append(fontmenu, "Font")
     self.SetMenuBar(menuBar)  # Adding the MenuBar to the Frame content.
 
     self.grid = wx.grid.Grid(self)
     self.grid.CreateGrid(0, 7)
+
     for i in range(4):
       self.grid.SetColSize(0, 50)   
     for i in range(4,7):
@@ -115,6 +122,8 @@ class MainWindow(wx.Frame):
     self.Bind(wx.EVT_MENU, self.OnAdd, menuAdd)
     self.Bind(wx.EVT_MENU, self.OnCSSHTML, menuCSSHTML)
     self.Bind(wx.EVT_MENU, self.OnSaveAs, menuSaveAs)
+    self.Bind(wx.EVT_MENU, self.OnSizePlus, menuSizePlus)
+    self.Bind(wx.EVT_MENU, self.OnSizeMinus, menuSizeMinus)
 
     self.statusbar.SetStatusText("0", 0)
     self.statusbar.SetStatusText("None", 1)
@@ -122,6 +131,20 @@ class MainWindow(wx.Frame):
     self.grid.SetRowLabelSize(0)
     self.SetBackgroundColour(wx.Colour("white"))
     self.Show()
+
+  def OnSizePlus(self, e):
+    self.fontsize += 2
+    if self.fontsize > 18:
+      self.fontsize = 18
+    #print(self.fontsize)
+    self.gridcolours()
+
+  def OnSizeMinus(self, e):
+    self.fontsize -= 2
+    if self.fontsize < 10:
+      self.fontsize = 10
+    #print(self.fontsize)
+    self.gridcolours()
 
   def OnCSSHTML(self, e):
     if not self.source.filename:
@@ -332,6 +355,11 @@ class MainWindow(wx.Frame):
     self.gridcolours()
 
   def gridcolours(self):
+    font = self.grid.GetLabelFont()
+    font.SetPointSize(self.fontsize)
+    self.grid.SetLabelFont(font)
+    font.SetWeight(wx.FONTWEIGHT_NORMAL)
+    self.grid.SetDefaultCellFont(font)
     numcolours = len(self.colours)
     numrows = self.grid.GetNumberRows()
 
@@ -356,6 +384,8 @@ class MainWindow(wx.Frame):
         self.grid.SetCellValue(row, t+4, self.colours[row]['tints'][t].GetAsString(self.textmethod))
         
     self.statusbar.SetStatusText(str(numcolours), 0)
+    self.grid.AutoSizeRows()
+    #self.grid.AutoSizeColumns()
     self.Layout()
 
   def OnChanging(self, e):
