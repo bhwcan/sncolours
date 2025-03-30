@@ -2,8 +2,7 @@
 
 Simple editor for Snowrunner Custom Colours. Displays a spreadsheet like display with the colour ID, Tint1, Tint2, Tint3 as background colours and then as text. The text can be updated to change the colour and will accept any entry supported by the python wx.Colour class. The background colour columns can be clicked on to open the Color Dialog. The ID's can be edited. The snowrunner developers start with 100 as the first and create sequentially. It works with all three tints for the version of Snowrunner 34.2 even though the game editor for this version does not support all three tints.
 
-![Screenshot 2025-03-22 004617](https://github.com/user-attachments/assets/53f36193-eb60-4aa1-af59-a583edf5bd61)
-
+![Screenshot 2025-03-30 110939](https://github.com/user-attachments/assets/4917fc2e-d5ff-4ade-ace5-30b5f4187e42)
 
 ## File Menu
 
@@ -38,6 +37,15 @@ Renumbers the colours starting at 100 to look more like Snowrunner created ones.
 
 ### CSS/HTML
 Toggles the text colour columns between CSS "rgb(15, 101, 192)" and HTML "#OF65C0"
+
+## Font Menu
+
+### Size +
+Make font larger.
+
+### Size -
+Make font smaller.
+
 
 ## Example Colours
 ![Screenshot 2025-03-21 233412](https://github.com/user-attachments/assets/ce28ca77-b969-45fb-a2f9-a7c562c1f11e)
