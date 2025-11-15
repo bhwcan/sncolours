@@ -4,6 +4,7 @@ import os
 import json
 import pprint
 from copy import deepcopy
+from combinations import ColourCombinations
 
 class SaveFile:
   def __init__(self):
@@ -49,6 +50,8 @@ class SaveFile:
 class MainWindow(wx.Frame):
   def __init__(self, title):
 
+    self.minid = 100
+    self.maxid = 1000
     self.fontsize = 12
     self.dirname = "."
     self.filename = ""
@@ -77,6 +80,7 @@ class MainWindow(wx.Frame):
     menuSort = rowmenu.Append(1003, "Sort", "Sort Rows by ID")
     menuRenumber = rowmenu.Append(1004, "Renumber", "Renumber ID starting with 100")
     menuCSSHTML = rowmenu.Append(1005, "CSS/HTML", "Colour text encoding method")
+    menuCombination = rowmenu.Append(1005, "Combinations", "Add all combinations of current colors")
 
     fontmenu = wx.Menu()
     menuSizePlus = fontmenu.Append(1006, "Size +", "Increase font size")
@@ -121,6 +125,7 @@ class MainWindow(wx.Frame):
     self.Bind(wx.EVT_MENU, self.OnRenumber, menuRenumber)
     self.Bind(wx.EVT_MENU, self.OnAdd, menuAdd)
     self.Bind(wx.EVT_MENU, self.OnCSSHTML, menuCSSHTML)
+    self.Bind(wx.EVT_MENU, self.OnCombination, menuCombination)
     self.Bind(wx.EVT_MENU, self.OnSaveAs, menuSaveAs)
     self.Bind(wx.EVT_MENU, self.OnSizePlus, menuSizePlus)
     self.Bind(wx.EVT_MENU, self.OnSizeMinus, menuSizeMinus)
@@ -175,7 +180,43 @@ class MainWindow(wx.Frame):
         self.grid.SetCellBackgroundColour(row, col, colour)
         self.grid.Refresh()
         self.colours[row]['tints'][col-1] = colour
-    
+
+  def maxId(self):
+    m = 0
+    for c in self.colours:
+      if c['id'] > m:
+        m = c['id']
+    return m
+
+  def nextId(self):
+    # find next available id
+    for i in range(self.minid, self.maxid):
+      found = False
+      for c in self.colours:
+        if i == c['id']:
+          found = True
+          break
+      if not found:
+        break
+    return i
+
+  def OnCombination(self, e):
+
+    startid = self.maxId() + 1
+
+    if startid > self.maxid - 27:
+      return
+
+    row = self.grid.GetGridCursorRow()
+    oldcolour = deepcopy(self.colours[row])
+    cc = ColourCombinations()
+    cc.set(startid, oldcolour['tints'])
+    # delete the origin row to avoid duplication as it will be in combination
+    del self.colours[row]
+    for newcolour in cc.results:
+      self.colours.append(newcolour)
+    self.gridcolours()
+
   def OnAdd(self, e):
     if not self.source.filename:
       return
@@ -186,15 +227,8 @@ class MainWindow(wx.Frame):
       self.gridcolours()
       return
     # find next available id
-    for i in range(100, 1000):
-      found = False
-      for c in self.colours:
-        if i == c['id']:
-          found = True
-          break
-      if not found:
-        break
-    if i < 1000:
+    i = self.nextId()
+    if i < self.maxid:
       newcolour = deepcopy(self.colours[row])
       newcolour['id'] = i
       self.colours.append(newcolour)
