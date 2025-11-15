@@ -38,6 +38,9 @@ Renumbers the colours starting at 100 to look more like Snowrunner created ones.
 ### CSS/HTML
 Toggles the text colour columns between CSS "rgb(15, 101, 192)" and HTML "#OF65C0"
 
+### Combinations
+It will take the current row and generate all 27 color combinations for the 3 colors. It will deleted the current row as it is duplicated in the combination. If the current row has less than three colors it will still generate all 27 combinations creating duplicates.
+
 ## Font Menu
 
 ### Size +
