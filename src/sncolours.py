@@ -80,7 +80,7 @@ class MainWindow(wx.Frame):
     menuSort = rowmenu.Append(1003, "Sort", "Sort Rows by ID")
     menuRenumber = rowmenu.Append(1004, "Renumber", "Renumber ID starting with 100")
     menuCSSHTML = rowmenu.Append(1005, "CSS/HTML", "Colour text encoding method")
-    menuCombination = rowmenu.Append(1005, "Combinations", "Add all combinations of current colors")
+    menuCombination = rowmenu.Append(1008, "Combinations", "Add all combinations of current colors")
 
     fontmenu = wx.Menu()
     menuSizePlus = fontmenu.Append(1006, "Size +", "Increase font size")
